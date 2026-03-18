@@ -11,11 +11,10 @@ RUN apk add --no-cache curl
 #define o diretorio de trabalho dentro do container
 WORKDIR /app
 
-#copia o codigo da aplicacao para o container
-COPY app . /app/
-
-#instala as dependencias e o limpa o cache
-RUN pip install --no-cache-dir -r requirements.txt
+#copia o codigo da aplicacao e requisitos e instala dependencias
+COPY app/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY app/ /app/
 
 #atribuicao de permissao para o usuario dedicado
 RUN chown -R appuser:appgrp /app

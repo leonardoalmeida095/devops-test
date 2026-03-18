@@ -52,12 +52,48 @@ jobs:
         run: |
           docker run -d -p 8000:8000 --name test-app ${{ steps.set_image.outputs.uri }}
           sleep 5 
+          docker ps
+      
+      - name: Aguardar healthcheck do container
+        run: |
+          set -e
+          ATTEMPTS=20         # ~10 min se o HC roda a cada 30s, ajuste como preferir
+          SLEEP=15            # intervalo de polling (independe do intervalo do HEALTHCHECK)
+          i=0
+          echo "Aguardando container ficar healthy..."
+          while [ $i -lt $ATTEMPTS ]; do
+            STATUS=$(docker inspect --format='{{ .State.Health.Status }}' test-app 2>/dev/null || echo "unknown")
+            echo "Saude atual: $STATUS"
+            if [ "$STATUS" = "healthy" ]; then
+              echo "Container esta healthy."
+              exit 0
+            elif [ "$STATUS" = "unhealthy" ]; then
+              echo "Container ficou unhealthy."
+              docker logs --tail 200 test-app || true
+              exit 1
+            fi
+            i=$((i+1))
+            sleep $SLEEP
+          done
+          echo "Timeout aguardando container ficar healthy."
+          docker logs --tail 200 test-app || true
+          exit 1
 
-      - name: Teste da aplicação (Healthcheck)
-        run: curl -f http://localhost:8000/health || exit 1
-          
+       
+# Limpeza do container de teste (sempre executar)
       - name: Limpeza do ambiente de teste
-        run: docker rm -f test-app
+        if: always()
+        run: docker rm -f test-app || true
+
+      - name: Envio da imagem para o GHCR branch main
+        if: github.ref == 'refs/heads/main'
+        run: docker push ${{ steps.set_image.outputs.uri }}
+
+#      - name: Teste da aplicação (Healthcheck)
+#        run: curl -f http://localhost:8000/health || exit 1
+          
+#      - name: Limpeza do ambiente de teste
+#        run: docker rm -f test-app
 
       - name: Envio da imagem para o GHCR branch main
         if: github.ref == 'refs/heads/main'
