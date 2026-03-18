@@ -1,0 +1,103 @@
+name: pipeline desafio devops
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# permissao para o GitHub Actions fazer o push para o GHCR
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-teste-envio:
+    name: build, teste e envio para o GHCR
+    runs-on: ubuntu-latest
+    
+    outputs:
+      image_uri: ${{ steps.set_image.outputs.uri }}
+    
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.14.3'
+        
+        #Autenticacao no container registry com uso do github_token
+      - name: Login no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Definir URI da imagem
+        id: set_image
+        # garante que o nome do repo esteja em letras minusculas
+        run: |
+          LOWER_REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          echo "uri=ghcr.io/${LOWER_REPO}:${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Build da imagem Docker
+        run: docker build -t ${{ steps.set_image.outputs.uri }} .
+
+      - name: Execucao do container para teste
+        run: |
+          docker run -d -p 8000:8000 --name test-app ${{ steps.set_image.outputs.uri }}
+          sleep 5 
+
+      - name: Teste da aplicação (Healthcheck)
+        run: curl -f http://localhost:8000/health || exit 1
+          
+      - name: Limpeza do ambiente de teste
+        run: docker rm -f test-app
+
+      - name: Envio da imagem para o GHCR branch main
+        if: github.ref == 'refs/heads/main'
+        run: docker push ${{ steps.set_image.outputs.uri }}
+
+  terraform-deploy:
+    #depende da execucao bem sucedida do build-teste-envio para provisionar a infra
+    name: Provisiona infraestrutura com TF
+    needs: build-teste-envio
+
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+    
+    steps:
+      - name: Checkout do codigo
+        uses: actions/checkout@v4
+
+      - name: Login no GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Apply
+        env:
+          TF_VAR_image_name: ${{ needs.build-teste-envio.outputs.image_uri }}
+        run: terraform apply -auto-approve
