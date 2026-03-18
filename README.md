@@ -70,4 +70,9 @@ export TF_VAR_image_name=local/test-app
 terraform init
 terraform validate
 terraform apply
+<<<<<<< HEAD
 ```
+=======
+```
+
+>>>>>>> c5061b90703e265b887445db1fddbcf0ffb62275
