@@ -54,31 +54,12 @@ jobs:
           sleep 5 
           docker ps
       
+      - name: Permissao para execucao do script de monitoramento
+        run: chmod +x .github/workflows/monitoramento_hc.sh
+
       #Implementado metodo mais robusto, asseguando a inicializacao do container e retornando logs de status
-      - name: Aguardar healthcheck do container
-        run: |
-          set -e
-          ATTEMPTS=20         # ~10 min se o HC roda a cada 30s
-          SLEEP=15            # intervalo de polling (independe do intervalo do HEALTHCHECK)
-          i=0
-          echo "Aguardando container ficar healthy..."
-          while [ $i -lt $ATTEMPTS ]; do
-            STATUS=$(docker inspect --format='{{ .State.Health.Status }}' test-app 2>/dev/null || echo "unknown")
-            echo "Saude atual: $STATUS"
-            if [ "$STATUS" = "healthy" ]; then
-              echo "Container esta healthy."
-              exit 0
-            elif [ "$STATUS" = "unhealthy" ]; then
-              echo "Container ficou unhealthy."
-              docker logs --tail 200 test-app || true
-              exit 1
-            fi
-            i=$((i+1))
-            sleep $SLEEP
-          done
-          echo "Timeout aguardando container ficar healthy."
-          docker logs --tail 200 test-app || true
-          exit 1
+      - name: Executar script de healthcheck externo
+        run: .github/workflows/monitoramento_hc.sh
 
       - name: Limpeza do ambiente de teste
         if: always()
