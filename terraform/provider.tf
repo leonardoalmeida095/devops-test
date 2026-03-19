@@ -10,6 +10,4 @@ terraform {
 }
 
 provider "docker" {
-  # conecta ao daemon do docker usando o socket unix
-  host = "unix:///var/run/docker.sock"
 }

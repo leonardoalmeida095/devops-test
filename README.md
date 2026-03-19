@@ -66,7 +66,7 @@ docker rm -f test-app
 __Testar o Terraform localmente__
 ```
 cd terraform
-export TF_VAR_image_name=local/test-app
+set TF_VAR_image_name=local/test-app __(windows)__ ou export TF_VAR_image_name=local/test-app __(linux)__
 terraform init
 terraform validate
 terraform apply
