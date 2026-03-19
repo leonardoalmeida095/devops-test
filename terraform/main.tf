@@ -12,7 +12,7 @@ resource "docker_container" "app_container" {
   networks_advanced {
     name = docker_network.app_network.name
   }
-  
+
   # expoe a aplicacao na porta 8000
   ports {
     internal = 8000

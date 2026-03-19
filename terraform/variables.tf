@@ -2,5 +2,5 @@
 variable "image_name" {
   description = "URI da imagem Docker no GHCR"
   type        = string
-  default     = "ghcr.io/leonardoalmeida095/devops-test:latest" 
+  default     = "ghcr.io/leonardoalmeida095/devops-test:latest"
 }
