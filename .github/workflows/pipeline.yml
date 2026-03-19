@@ -54,9 +54,6 @@ jobs:
           sleep 5 
           docker ps
       
-      - name: Permissao para execucao do script de monitoramento
-        run: chmod +x .github/workflows/monitoramento_hc.sh
-
       #Implementado metodo mais robusto, asseguando a inicializacao do container e retornando logs de status
       - name: Permissão e execucao do script de healthcheck externo
         run: | 
