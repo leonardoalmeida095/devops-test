@@ -54,6 +54,7 @@ jobs:
           sleep 5 
           docker ps
       
+      #Implementado metodo mais robusto, asseguando a inicializacao do container e retornando logs de status
       - name: Aguardar healthcheck do container
         run: |
           set -e
@@ -94,10 +95,6 @@ jobs:
           
 #      - name: Limpeza do ambiente de teste
 #        run: docker rm -f test-app
-
-      - name: Envio da imagem para o GHCR branch main
-        if: github.ref == 'refs/heads/main'
-        run: docker push ${{ steps.set_image.outputs.uri }}
 
   terraform-deploy:
     #depende da execucao bem sucedida do build-teste-envio para provisionar a infra
