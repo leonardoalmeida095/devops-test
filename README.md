@@ -18,18 +18,17 @@ O pipeline segue as etapas de criação do recurso de rede (devops_network) e cr
 __Job "build-teste-envio"__
 1. Checkout do código  
 2. Setup Python (3.14.3)  
-3. Login no GHCR  
-4. Autenticação no GHCR  
-5. Definição da URI da imagem  
-6. Build da imagem Docker  
-7. Execução do container (porta 8000)  
-8. Teste da aplicação (Healthcheck)  
-9. Limpeza do ambiente (remoção do container)  
-10. Envio da imagem validada para o GHCR e output do image_uri 
+3. Autenticação no GHCR  
+4. Definição da URI da imagem  
+5. Build da imagem Docker  
+6. Execução do container (porta 8000)  
+7. Teste da aplicação (Healthcheck)  
+8. Limpeza do ambiente (remoção do container)  
+9. Envio da imagem validada para o GHCR e output do image_uri 
 
 __Job "terraform-deploy"__  
 1. Checkout do código  
-2. Login no GHCR  
+2. Autenticação no GHCR  
 3. Setup do Terraform
 4. Inicialização do Terraform (terraform init)  
 5. Verificação de formatação (terraform fmt -check)  
