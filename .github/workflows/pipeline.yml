@@ -80,8 +80,6 @@ jobs:
           docker logs --tail 200 test-app || true
           exit 1
 
-       
-# Limpeza do container de teste (sempre executar)
       - name: Limpeza do ambiente de teste
         if: always()
         run: docker rm -f test-app || true
@@ -89,12 +87,6 @@ jobs:
       - name: Envio da imagem para o GHCR branch main
         if: github.ref == 'refs/heads/main'
         run: docker push ${{ steps.set_image.outputs.uri }}
-
-#      - name: Teste da aplicação (Healthcheck)
-#        run: curl -f http://localhost:8000/health || exit 1
-          
-#      - name: Limpeza do ambiente de teste
-#        run: docker rm -f test-app
 
   terraform-deploy:
     #depende da execucao bem sucedida do build-teste-envio para provisionar a infra
