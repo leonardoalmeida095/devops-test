@@ -58,7 +58,7 @@ jobs:
       - name: Aguardar healthcheck do container
         run: |
           set -e
-          ATTEMPTS=20         # ~10 min se o HC roda a cada 30s, ajuste como preferir
+          ATTEMPTS=20         # ~10 min se o HC roda a cada 30s
           SLEEP=15            # intervalo de polling (independe do intervalo do HEALTHCHECK)
           i=0
           echo "Aguardando container ficar healthy..."
