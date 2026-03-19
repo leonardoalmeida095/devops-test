@@ -58,8 +58,10 @@ jobs:
         run: chmod +x .github/workflows/monitoramento_hc.sh
 
       #Implementado metodo mais robusto, asseguando a inicializacao do container e retornando logs de status
-      - name: Executar script de healthcheck externo
-        run: .github/workflows/monitoramento_hc.sh
+      - name: Permissão e execucao do script de healthcheck externo
+        run: | 
+          chmod +x .github/workflows/monitoramento_hc.sh
+          .github/workflows/monitoramento_hc.sh
 
       - name: Limpeza do ambiente de teste
         if: always()

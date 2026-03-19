@@ -22,10 +22,9 @@ __Job "build-teste-envio"__
 4. Definição da URI da imagem  
 5. Build da imagem Docker  
 6. Execução do container (porta 8000)  
-7. Permissionamento para execucao do script de monitoramento
-8. Teste da aplicação (Healthcheck com script externo "monitoramento_hc.sh")  
-9. Limpeza do ambiente (remoção do container)  
-10. Envio da imagem validada para o GHCR e output do image_uri 
+7. Teste da aplicação (Healthcheck com script externo "monitoramento_hc.sh")  
+8. Limpeza do ambiente (remoção do container)  
+9. Envio da imagem validada para o GHCR e output do image_uri 
 
 __Job "terraform-deploy"__  
 1. Checkout do código  
